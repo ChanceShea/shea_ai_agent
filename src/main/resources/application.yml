@@ -1,6 +1,11 @@
 spring:
   application:
     name: shea-ai-agent
+  ai:
+    dashscope:
+      chat:
+        options:
+          model: qwen-plus
   profiles:
     active: local
 server:
