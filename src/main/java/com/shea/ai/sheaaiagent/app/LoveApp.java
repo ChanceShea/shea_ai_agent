@@ -1,7 +1,6 @@
 package com.shea.ai.sheaaiagent.app;
 
 import com.shea.ai.sheaaiagent.advisor.MyLoggerAdvisor;
-import com.shea.ai.sheaaiagent.chatmemory.FIleBasedChatMemory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -21,6 +20,7 @@ import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvis
  */
 @Component
 @Slf4j
+
 public class LoveApp {
 
     private final ChatClient chatClient;
@@ -30,11 +30,12 @@ public class LoveApp {
             恋爱状态询问沟通、习惯差异引发的矛盾；已婚状态询问家庭责任与亲属关系处理的问题。
             引导用户详述事情经过、对方反应及自身想法，以便给出专属解决方案。
             """;
+    private final ChatMemory chatMemory;
 
-
-    public LoveApp(ChatModel dashscopeChatModel) {
-        String fileDir = System.getProperty("user.dir") + "/tmp/chat-memory";
-        ChatMemory chatMemory = new FIleBasedChatMemory(fileDir);
+    public LoveApp(ChatModel dashscopeChatModel, ChatMemory chatMemory) {
+        this.chatMemory = chatMemory;
+//        String fileDir = System.getProperty("user.dir") + "/tmp/chat-memory";
+//        ChatMemory chatMemory = new FIleBasedChatMemory(fileDir);
 //        ChatMemory chatMemory = new InMemoryChatMemory();
         chatClient = ChatClient.builder(dashscopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
@@ -64,7 +65,7 @@ public class LoveApp {
         return text;
     }
 
-    record LoveReport(String title, List<String> suggestions) {
+    public record LoveReport(String title, List<String> suggestions) {
 
     }
 
