@@ -1,12 +1,16 @@
 package com.shea.ai.sheaaiagent.app;
 
 import com.shea.ai.sheaaiagent.advisor.MyLoggerAdvisor;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -30,13 +34,13 @@ public class LoveApp {
             恋爱状态询问沟通、习惯差异引发的矛盾；已婚状态询问家庭责任与亲属关系处理的问题。
             引导用户详述事情经过、对方反应及自身想法，以便给出专属解决方案。
             """;
-    private final ChatMemory chatMemory;
+//    private final ChatMemory chatMemory;
 
-    public LoveApp(ChatModel dashscopeChatModel, ChatMemory chatMemory) {
-        this.chatMemory = chatMemory;
+    public LoveApp(ChatModel dashscopeChatModel) {
+//        this.chatMemory = chatMemory;
 //        String fileDir = System.getProperty("user.dir") + "/tmp/chat-memory";
 //        ChatMemory chatMemory = new FIleBasedChatMemory(fileDir);
-//        ChatMemory chatMemory = new InMemoryChatMemory();
+        ChatMemory chatMemory = new InMemoryChatMemory();
         chatClient = ChatClient.builder(dashscopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultAdvisors(
@@ -86,5 +90,35 @@ public class LoveApp {
 
         log.info("loveReport:{}",loveReport);
         return loveReport;
+    }
+
+
+    // AI恋爱知识库问答功能
+    @Resource
+    private VectorStore loveAppVectorStore;
+    @Resource
+    private Advisor loveAppRagCloudAdvisor;
+
+    /**
+     * RAG知识库问答功能
+     * @param message
+     * @param chatId
+     * @return
+     */
+    public String doChatWithRag(String message,String chatId) {
+        ChatResponse chatResponse = chatClient.prompt()
+                .user(message)
+                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .advisors(new MyLoggerAdvisor())
+                // 添加知识库问答功能，通过QuestionAnswerAdvisor实现
+//                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
+                // 基于云知识库服务的RAG检索增强服务
+                .advisors(loveAppRagCloudAdvisor)
+                .call()
+                .chatResponse();
+        String content = chatResponse.getResult().getOutput().getText();
+        log.info("content:{}",content);
+        return content;
     }
 }

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.shea.ai.sheaaiagent.mapper.ChatHistoryMapper">
 
-    <select id="selectLastNByConversationId" resultType="ChatHistory">
+    <select id="selectLastNByConversationId" resultType="com.shea.ai.sheaaiagent.model.ChatHistory">
         SELECT * FROM chat_history
         WHERE conversation_id = #{conversationId}
         ORDER BY created_time ASC
