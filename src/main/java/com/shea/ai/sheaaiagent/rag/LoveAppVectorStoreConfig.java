@@ -20,12 +20,19 @@ public class LoveAppVectorStoreConfig {
 
     @Resource
     private LoveAppDocumentLoader loader;
+    @Resource
+    private MyTokenTextSplitter splitter;
+    @Resource
+    private MyKeywordEnricher enricher;
 
     @Bean
     VectorStore loveAppVectorStore(EmbeddingModel dashscopeEmbeddingModel) {
         SimpleVectorStore vectorStore = SimpleVectorStore.builder(dashscopeEmbeddingModel).build();
         List<Document> documents = loader.loadMarkdowns();
-        vectorStore.add(documents);
+        List<Document> enrichDocument = enricher.enrichDocument(documents);
+        vectorStore.add(enrichDocument);
+//        List<Document> splitDocuments = splitter.splitCustomized(documents);
+//        vectorStore.add(splitDocuments);
         return vectorStore;
     }
 }

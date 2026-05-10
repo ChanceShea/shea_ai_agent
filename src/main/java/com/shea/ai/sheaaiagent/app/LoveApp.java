@@ -1,6 +1,8 @@
 package com.shea.ai.sheaaiagent.app;
 
 import com.shea.ai.sheaaiagent.advisor.MyLoggerAdvisor;
+import com.shea.ai.sheaaiagent.rag.LoveAppRagCustomAdvisorFactory;
+import com.shea.ai.sheaaiagent.rag.QueryRewriter;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -98,6 +100,10 @@ public class LoveApp {
     private VectorStore loveAppVectorStore;
     @Resource
     private Advisor loveAppRagCloudAdvisor;
+    @Resource
+    private VectorStore pgVectorVectorStore;
+    @Resource
+    private QueryRewriter queryRewriter;
 
     /**
      * RAG知识库问答功能
@@ -106,6 +112,7 @@ public class LoveApp {
      * @return
      */
     public String doChatWithRag(String message,String chatId) {
+//        String rewrite = queryRewriter.doQueryRewrite(message);
         ChatResponse chatResponse = chatClient.prompt()
                 .user(message)
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
@@ -114,7 +121,14 @@ public class LoveApp {
                 // 添加知识库问答功能，通过QuestionAnswerAdvisor实现
 //                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
                 // 基于云知识库服务的RAG检索增强服务
-                .advisors(loveAppRagCloudAdvisor)
+//                .advisors(loveAppRagCloudAdvisor)
+                // 基于PgVector的知识库检索服务
+//                .advisors(new QuestionAnswerAdvisor(pgVectorVectorStore))
+                .advisors(
+                        LoveAppRagCustomAdvisorFactory.createLoveAppRagCustomAdvisor(
+                                loveAppVectorStore,"单身"
+                        )
+                )
                 .call()
                 .chatResponse();
         String content = chatResponse.getResult().getOutput().getText();

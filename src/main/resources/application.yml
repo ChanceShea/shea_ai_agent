@@ -6,13 +6,24 @@ spring:
       chat:
         options:
           model: qwen-plus
+    vectorstore:
+      pgvector:
+        index-type: HNSW
+        dimensions: 1536
+        distance-type: COSINE_DISTANCE
+        max-document-batch-size: 10000
   profiles:
     active: local
-  datasource:
-    username: root
-    password: root
-    url: jdbc:mysql://192.168.100.104:3306/shea_ai_agent?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowMultiQueries=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Shanghai
-    driver-class-name: com.mysql.cj.jdbc.Driver
+#  datasource:
+#    username: root
+#    password: root
+#    url: jdbc:mysql://192.168.100.104:3306/shea_ai_agent?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowMultiQueries=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Shanghai
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#  datasource2:
+#    username: username
+#    password: password
+#    url: url
+
 server:
   port: 8080
   servlet:

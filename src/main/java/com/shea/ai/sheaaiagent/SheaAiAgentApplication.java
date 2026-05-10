@@ -3,9 +3,8 @@ package com.shea.ai.sheaaiagent;
 import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class, MybatisPlusAutoConfiguration.class})
+@SpringBootApplication(exclude = {MybatisPlusAutoConfiguration.class})
 //@MapperScan("com.shea.ai.sheaaiagent.mapper")
 public class SheaAiAgentApplication {
 
