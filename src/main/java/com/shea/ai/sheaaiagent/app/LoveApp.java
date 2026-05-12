@@ -1,17 +1,18 @@
 package com.shea.ai.sheaaiagent.app;
 
 import com.shea.ai.sheaaiagent.advisor.MyLoggerAdvisor;
-import com.shea.ai.sheaaiagent.rag.LoveAppRagCustomAdvisorFactory;
 import com.shea.ai.sheaaiagent.rag.QueryRewriter;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 
@@ -123,14 +124,33 @@ public class LoveApp {
                 // 基于云知识库服务的RAG检索增强服务
 //                .advisors(loveAppRagCloudAdvisor)
                 // 基于PgVector的知识库检索服务
-//                .advisors(new QuestionAnswerAdvisor(pgVectorVectorStore))
-                .advisors(
-                        LoveAppRagCustomAdvisorFactory.createLoveAppRagCustomAdvisor(
-                                loveAppVectorStore,"单身"
-                        )
-                )
+                .advisors(new QuestionAnswerAdvisor(pgVectorVectorStore))
+//                .advisors(
+//                        LoveAppRagCustomAdvisorFactory.createLoveAppRagCustomAdvisor(
+//                                loveAppVectorStore,"单身"
+//                        )
+//                )
                 .call()
                 .chatResponse();
+        String content = chatResponse.getResult().getOutput().getText();
+        log.info("content:{}",content);
+        return content;
+    }
+
+    @Resource
+    private ToolCallback[] allTools;
+
+    public String  doChatWithTools(String message,String chatId) {
+        ChatResponse chatResponse = chatClient.prompt()
+                .system(SYSTEM_PROMPT + "每次对话后都要生成恋爱结果，标题为{用户名}的恋爱报告，内容为建议列表")
+                .user(message)
+                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .advisors(new MyLoggerAdvisor())
+                .tools(allTools)
+                .call()
+                .chatResponse();
+
         String content = chatResponse.getResult().getOutput().getText();
         log.info("content:{}",content);
         return content;

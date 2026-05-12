@@ -5,13 +5,13 @@ spring:
     dashscope:
       chat:
         options:
-          model: qwen-plus
+          model: qwen-max
     vectorstore:
       pgvector:
         index-type: HNSW
-        dimensions: 1536
+        dimensions: 1024
         distance-type: COSINE_DISTANCE
-        max-document-batch-size: 10000
+        max-document-batch-size: 10
   profiles:
     active: local
 #  datasource:

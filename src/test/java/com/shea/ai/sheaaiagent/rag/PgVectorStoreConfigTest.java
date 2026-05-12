@@ -8,6 +8,7 @@ import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -35,8 +36,15 @@ class PgVectorVectorStoreConfigTest {
     @Test
     void test2() {
         List<Document> documents = loader.loadMarkdowns();
-        // 添加文档
-        pgVectorVectorStore.add(documents);
+        // DashScope text-embedding-v3 单次最多 10 条，分批添加
+        int batchSize = 10;
+        List<List<Document>> batches = new ArrayList<>();
+        for (int i = 0; i < documents.size(); i += batchSize) {
+            batches.add(documents.subList(i, Math.min(i + batchSize, documents.size())));
+        }
+        for (List<Document> batch : batches) {
+            pgVectorVectorStore.add(batch);
+        }
         // 相似度查询
         List<Document> results = pgVectorVectorStore.similaritySearch(SearchRequest.builder().query("Spring").topK(5).build());
         Assertions.assertNotNull(results);

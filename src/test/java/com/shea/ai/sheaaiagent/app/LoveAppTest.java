@@ -43,4 +43,26 @@ class LoveAppTest {
         String answer = loveApp.doChatWithRag(message, chatId);
         Assertions.assertNotNull(answer);
     }
+
+    @Test
+    void doChatWithTools() {
+        // 测试联网搜索
+        testMessage("周末想带女朋友去南昌约会，推荐几个适合情侣的小众打卡地？");
+        // 测试从网站抓取
+        testMessage("最近和对象吵架了，看看编程导航网站（codefather.cn）的其他情侣是怎么解决矛盾的？");
+        // 测试下载图片
+        testMessage("直接下载一张适合做手机壁纸的心空情侣图片为文件");
+        // 测试执行中断命令
+        testMessage("执行Python3脚本来生成数据分析报告");
+        // 测试保存文件
+        testMessage("保存我的恋爱档案为文件");
+        // 测试生成PDF
+        testMessage("生成一份‘七夕约会计划’PDF，包含餐厅预订、活动流程和礼物清单");
+    }
+
+    private void testMessage(String message) {
+        String chatId = UUID.randomUUID().toString();
+        String answer = loveApp.doChatWithTools(message, chatId);
+        Assertions.assertNotNull(answer);
+    }
 }
